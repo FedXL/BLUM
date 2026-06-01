@@ -1,0 +1,90 @@
+services:
+  web:
+    build: .
+    container_name: blum-web
+    command: >
+      sh -c "
+        python manage.py migrate &&
+        python manage.py collectstatic --noinput &&
+        gunicorn django_app.wsgi:application --bind 0.0.0.0:8000 --workers 2 --log-file -
+      "
+    environment:
+      PYTHONPATH: /config:/app
+      DJANGO_SETTINGS_MODULE: settings
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,142.93.128.96}
+      DENTIST_TELEGRAM_BOT_ID: ${DENTIST_TELEGRAM_BOT_ID:-}
+      DENTIST_SHEET_ID: ${DENTIST_SHEET_ID:-}
+      DELIVERY_TELEGRAM_BOT_ID: ${DELIVERY_TELEGRAM_BOT_ID:-}
+      DELIVERY_SHEET_ID: ${DELIVERY_SHEET_ID:-}
+      TERRA_MOTORS_SHEET_ID: ${TERRA_MOTORS_SHEET_ID:-}
+    ports:
+      - "127.0.0.1:8010:8000"
+    volumes:
+      - ./config:/config:ro
+      - ./data:/data
+      - ./static:/static
+      - ./logs:/logs
+      - ./secrets/service.key:/etc/opt/django_app/service.key:ro
+    depends_on:
+      - redis
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: blum-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    restart: always
+
+  celery-worker:
+    build: .
+    container_name: blum-celery-worker
+    command: celery -A django_app worker -l INFO --logfile=-
+    environment:
+      PYTHONPATH: /config:/app
+      DJANGO_SETTINGS_MODULE: settings
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,142.93.128.96}
+      DENTIST_TELEGRAM_BOT_ID: ${DENTIST_TELEGRAM_BOT_ID:-}
+      DENTIST_SHEET_ID: ${DENTIST_SHEET_ID:-}
+      DELIVERY_TELEGRAM_BOT_ID: ${DELIVERY_TELEGRAM_BOT_ID:-}
+      DELIVERY_SHEET_ID: ${DELIVERY_SHEET_ID:-}
+      TERRA_MOTORS_SHEET_ID: ${TERRA_MOTORS_SHEET_ID:-}
+    volumes:
+      - ./config:/config:ro
+      - ./data:/data
+      - ./logs:/logs
+      - ./secrets/service.key:/etc/opt/django_app/service.key:ro
+    depends_on:
+      - redis
+      - web
+    restart: always
+
+  celery-beat:
+    build: .
+    container_name: blum-celery-beat
+    command: celery -A django_app beat -l INFO --logfile=- --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    environment:
+      PYTHONPATH: /config:/app
+      DJANGO_SETTINGS_MODULE: settings
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-127.0.0.1,localhost,142.93.128.96}
+      DENTIST_TELEGRAM_BOT_ID: ${DENTIST_TELEGRAM_BOT_ID:-}
+      DENTIST_SHEET_ID: ${DENTIST_SHEET_ID:-}
+      DELIVERY_TELEGRAM_BOT_ID: ${DELIVERY_TELEGRAM_BOT_ID:-}
+      DELIVERY_SHEET_ID: ${DELIVERY_SHEET_ID:-}
+      TERRA_MOTORS_SHEET_ID: ${TERRA_MOTORS_SHEET_ID:-}
+    volumes:
+      - ./config:/config:ro
+      - ./data:/data
+      - ./logs:/logs
+      - ./secrets/service.key:/etc/opt/django_app/service.key:ro
+    depends_on:
+      - redis
+      - web
+    restart: always
+
+volumes:
+  redis_data:
