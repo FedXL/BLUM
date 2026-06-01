@@ -41,12 +41,18 @@ blum.md                заметки о переносе со старой syst
 Локальные runtime-данные не коммитятся:
 
 ```text
-data/                  SQLite DB, media, cache
+data/django_app.db     основная SQLite-база Django
+data/celerybeat_schedule.db
+                       служебная SQLite-база Celery Beat
+data/media/            media-файлы
+data/cache/            файловый cache Django
 logs/                  логи
 static/                collectstatic output
 secrets/service.key    Google service account key
 .env                   реальные переменные окружения
 ```
+
+Внутри контейнера основная база доступна как `/data/django_app.db`.
 
 ## Переменные окружения
 
