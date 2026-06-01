@@ -54,6 +54,28 @@ secrets/service.key    Google service account key
 
 Внутри контейнера основная база доступна как `/data/django_app.db`.
 
+## SQLite-база
+
+Основная база Django лежит на сервере:
+
+```text
+/root/Blum/data/django_app.db
+```
+
+Внутри контейнеров этот же файл доступен по пути:
+
+```text
+/data/django_app.db
+```
+
+Отдельно есть служебная база Celery Beat:
+
+```text
+/root/Blum/data/celerybeat_schedule.db
+```
+
+Папка `data/` не хранится в GitHub.
+
 ## Переменные окружения
 
 Скопировать пример:
