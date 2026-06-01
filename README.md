@@ -227,7 +227,7 @@ https://api.nexmo.com/v0.1/messages
 | --- | --- | --- | --- |
 | `celery.backend_cleanup` | `celery.backend_cleanup` | Каждый день в `04:00` | Да |
 | `notification.tasks.send_dentist_remainders()` | `send_dentist_remainders` | Каждый час на `15` минуте | Да |
-| `Update Schedule` | `update_schedule` | 1 числа каждого месяца в `03:24` | Да |
+| `Update Schedule` | `update_schedule` | Каждый понедельник в `03:24` | Да |
 | `Delivery Remainders` | `send_delivery_remainders` | Каждый день в `12:05` и `17:05` | Нет |
 
 Таймзона: `Asia/Almaty`.
