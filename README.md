@@ -215,24 +215,3 @@ https://api.nexmo.com/v0.1/messages
 ```bash
 docker compose up -d
 ```
-
-После изменения кода или зависимостей:
-
-```bash
-docker compose up -d --build
-```
-
-Логи:
-
-```bash
-docker compose logs -f web
-docker compose logs -f celery-worker
-docker compose logs -f celery-beat
-```
-
-## Важно для публичного репозитория
-
-- Не коммитить `.env`, `secrets/`, `data/`, `logs/`, `static/`.
-- Не возвращать реальные bot tokens и sheet IDs в код.
-- Google Sheets service account key должен оставаться только на сервере.
-- Endpoints сейчас без авторизации. Если сервис будет доступен шире текущего nginx/proxy-контура, нужно добавить защиту.
